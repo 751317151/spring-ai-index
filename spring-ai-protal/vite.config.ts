@@ -28,6 +28,13 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "127.0.0.1", // 使用 IPv4 避免 IPv6 权限问题
       port: Number(env.VITE_PORT) || 8080, // 从环境变量读取端口，默认8080
+      proxy: {
+        '/api': {
+          target: 'http://localhost:9099',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      },
       strictPort: false, // 如果端口被占用，自动尝试下一个可用端口
       headers: {
         "Cross-Origin-Opener-Policy": "same-origin",

@@ -1,11 +1,11 @@
 // 从环境变量读取API基础地址，如果没有配置则使用默认值
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const chatAPI = {
   // 发送聊天消息
   async sendMessage(data, chatId) {
     try {
-      const url = new URL(`${BASE_URL}/ai/chat`);
+      const url = new URL(`${BASE_URL}/ai/chat`, window.location.origin);
       if (chatId) {
         url.searchParams.append("chatId", chatId);
       }

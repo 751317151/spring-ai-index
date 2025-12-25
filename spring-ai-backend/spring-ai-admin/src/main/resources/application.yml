@@ -38,16 +38,16 @@ spring:
             user-name-attribute: msg
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/blog_hh?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: blog_hh
-    password: blog_hh
+    url: jdbc:mysql://localhost:3306/springai?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: springaiuser
+    password: springaiuserpassword
   data:
     redis:
       host: localhost
       port: 6379
   ai:
     dashscope:
-      api-key: ${aliQwen-api}
+      api-key: ${aliQwen_api}
       chat:
         options:
           model: qwen-turbo
@@ -71,16 +71,16 @@ spring:
         port: 6379
         password:
         timeout: 5000
-    chat:
-      memory:
-        repository:
-          jdbc:
-            mysql:
-              jdbc-url: jdbc:mysql://localhost:3306/springai?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false&allowLoadLocalInfile=true&allowLocalInfile=true&allowUrl
-              username: springaiuser
-              password: springaiuserpassword
-              driver-class-name: com.mysql.cj.jdbc.Driver
-              enabled: true
+#    chat:
+#      memory:
+#        repository:
+#          jdbc:
+#            mysql:
+#              jdbc-url: jdbc:mysql://localhost:3306/springai?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false&allowLoadLocalInfile=true&allowLocalInfile=true&allowUrl
+#              username: springaiuser
+#              password: springaiuserpassword
+#              driver-class-name: com.mysql.cj.jdbc.Driver
+#              enabled: true
 
 logging:
   level:

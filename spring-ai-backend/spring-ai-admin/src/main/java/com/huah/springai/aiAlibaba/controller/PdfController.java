@@ -44,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
-import static org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor.FILTER_EXPRESSION;
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 @Slf4j
@@ -84,7 +83,7 @@ public class PdfController {
         return pdfChatClient.prompt()
                 .user(prompt)
                 .advisors(a -> a.param(CONVERSATION_ID, chatId))
-                .advisors(a -> a.param(FILTER_EXPRESSION, filterExpression))
+//                .advisors(a -> a.param(FILTER_EXPRESSION, filterExpression))
                 .stream()
                 .content();
     }
