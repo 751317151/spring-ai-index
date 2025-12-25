@@ -50,9 +50,10 @@ public class ChatController {
     public Flux<String> chat(
             @RequestParam("prompt") String prompt,
             @RequestParam("chatId") String chatId,
+            @RequestParam("userId") String userId,
             @RequestParam(value = "files", required = false) List<MultipartFile> files){
         //保存会话id
-        chatHistoryRepository.save("chat", chatId);
+        chatHistoryRepository.save("chat", userId, chatId);
         //请求模型
         if(files==null || files.isEmpty()){
             return textChat(prompt, chatId);

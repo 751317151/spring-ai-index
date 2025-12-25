@@ -40,8 +40,8 @@ public class CustomerServiceController {
     }
 
     @RequestMapping(value="/service", produces = "text/html;charset=utf-8")
-    public Flux<String> service(@RequestParam String prompt, @RequestParam String chatId){
-        chatHistoryRepository.save("service", chatId);
+    public Flux<String> service(@RequestParam String prompt, @RequestParam String chatId, @RequestParam String userId){
+        chatHistoryRepository.save("service", userId, chatId);
         return serviceChatClient.prompt()
                 .user(prompt)
                 .advisors(a -> a.param(CONVERSATION_ID, chatId))

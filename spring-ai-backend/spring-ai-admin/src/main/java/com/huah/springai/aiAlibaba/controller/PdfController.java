@@ -67,7 +67,7 @@ public class PdfController {
     }
 
     @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
-    public Flux<String> chat(@RequestParam String prompt, @RequestParam String chatId) {
+    public Flux<String> chat(@RequestParam String prompt, @RequestParam String chatId, @RequestParam String userId) {
         // 1.找到会话文件
         Resource file = fileRepository.getFile(chatId);
         if (!file.exists()) {
@@ -75,7 +75,7 @@ public class PdfController {
             throw new RuntimeException("会话文件不存在！");
         }
         // 2.保存会话id
-        chatHistoryRepository.save("pdf", chatId);
+        chatHistoryRepository.save("pdf", userId, chatId);
         // 3.构造过滤表达式
         String filterExpression = "file_name == '" + file.getFilename() + "'";
         log.info("查询聊天ID: {}, 文件名: {}, 过滤表达式: {}", chatId, file.getFilename(), filterExpression);

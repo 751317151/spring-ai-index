@@ -16,19 +16,16 @@
 
 package com.huah.springai.aiAlibaba.controller;
 
-import com.huah.springai.aiAlibaba.entity.ProcurementProject;
-import com.huah.springai.aiAlibaba.entity.ProcurementOrganization;
 import com.huah.springai.aiAlibaba.entity.vo.ApiResponse;
-import com.huah.springai.aiAlibaba.repository.ProcurementProjectRepository;
-import com.huah.springai.aiAlibaba.repository.ProcurementOrganizationRepository;
-import com.huah.springai.aiAlibaba.service.ProcurementCrawlerService;
 import com.huah.springai.aiAlibaba.service.ProcurementAIService;
+import com.huah.springai.aiAlibaba.service.ProcurementCrawlerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -39,8 +36,6 @@ public class ProcurementController {
     
     private final ProcurementCrawlerService crawlerService;
     private final ProcurementAIService aiService;
-    private final ProcurementProjectRepository projectRepository;
-    private final ProcurementOrganizationRepository organizationRepository;
     
     /**
      * 启动爬虫任务
@@ -80,110 +75,6 @@ public class ProcurementController {
             return ApiResponse.error("单页面爬取失败: " + e.getMessage());
         }
     }
-    
-    /**
-     * 查询所有采购项目
-     */
-    @GetMapping("/projects")
-    public ApiResponse<List<ProcurementProject>> getAllProjects() {
-        try {
-            List<ProcurementProject> projects = projectRepository.findAll();
-            return ApiResponse.success(projects);
-        } catch (Exception e) {
-            log.error("查询采购项目失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 根据ID查询采购项目详情
-     */
-    @GetMapping("/projects/{id}")
-    public ApiResponse<ProcurementProject> getProjectById(@PathVariable Long id) {
-        try {
-            Optional<ProcurementProject> project = projectRepository.findProjectWithAllRelations(id);
-            if (project.isPresent()) {
-                return ApiResponse.success(project.get());
-            } else {
-                return ApiResponse.error("项目不存在");
-            }
-        } catch (Exception e) {
-            log.error("查询项目详情失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 根据关键词搜索项目
-     */
-    @GetMapping("/projects/search")
-    public ApiResponse<List<ProcurementProject>> searchProjects(@RequestParam String keyword) {
-        try {
-            List<ProcurementProject> projects = projectRepository.searchByKeyword(keyword);
-            return ApiResponse.success(projects);
-        } catch (Exception e) {
-            log.error("搜索项目失败", e);
-            return ApiResponse.error("搜索失败: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * 根据预算范围查询项目
-     */
-    @GetMapping("/projects/budget")
-    public ApiResponse<List<ProcurementProject>> getProjectsByBudget(
-            @RequestParam Double minBudget,
-            @RequestParam Double maxBudget) {
-        try {
-            List<ProcurementProject> projects = projectRepository.findByBudgetRange(minBudget, maxBudget);
-            return ApiResponse.success(projects);
-        } catch (Exception e) {
-            log.error("按预算查询项目失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 查询最近的项目
-     */
-    @GetMapping("/projects/recent")
-    public ApiResponse<List<ProcurementProject>> getRecentProjects(@RequestParam(defaultValue = "10") int limit) {
-        try {
-            List<ProcurementProject> projects = projectRepository.findRecentProjects(limit);
-            return ApiResponse.success(projects);
-        } catch (Exception e) {
-            log.error("查询最近项目失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 查询所有采购单位
-     */
-    @GetMapping("/organizations")
-    public ApiResponse<List<ProcurementOrganization>> getAllOrganizations() {
-        try {
-            List<ProcurementOrganization> organizations = organizationRepository.findAll();
-            return ApiResponse.success(organizations);
-        } catch (Exception e) {
-            log.error("查询采购单位失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * 根据采购单位查询项目
-     */
-    @GetMapping("/organizations/{name}/projects")
-    public ApiResponse<List<ProcurementProject>> getProjectsByOrganization(@PathVariable String name) {
-        try {
-            List<ProcurementProject> projects = projectRepository.findByOrganizationName(name);
-            return ApiResponse.success(projects);
-        } catch (Exception e) {
-            log.error("按单位查询项目失败", e);
-            return ApiResponse.error("查询失败: " + e.getMessage());
-        }
-    }
 
     /**
      * AI分析项目内容
@@ -197,31 +88,6 @@ public class ProcurementController {
             return ApiResponse.success(analysis);
         } catch (Exception e) {
             log.error("AI分析失败", e);
-            return ApiResponse.error("分析失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 获取采购趋势分析
-     */
-    @GetMapping("/trends")
-    public ApiResponse<String> getTrends() {
-        try {
-            List<ProcurementProject> recentProjects = projectRepository.findRecentProjects(50);
-            StringBuilder projectData = new StringBuilder();
-
-            for (ProcurementProject project : recentProjects) {
-                projectData.append("项目: ").append(project.getProjectName())
-                          .append(", 预算: ").append(project.getBudget())
-                          .append(", 单位: ").append(project.getOrganization() != null ?
-                                  project.getOrganization().getName() : "未知")
-                          .append("\n");
-            }
-
-            String trends = aiService.analyzeTrends(projectData.toString());
-            return ApiResponse.success(trends);
-        } catch (Exception e) {
-            log.error("趋势分析失败", e);
             return ApiResponse.error("分析失败: " + e.getMessage());
         }
     }

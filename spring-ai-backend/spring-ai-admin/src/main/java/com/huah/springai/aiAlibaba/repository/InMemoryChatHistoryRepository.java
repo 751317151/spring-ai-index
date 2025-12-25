@@ -16,25 +16,24 @@
 
 package com.huah.springai.aiAlibaba.repository;
 
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+//@Component
 public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
 
     private final Map<String, List<String>> chatHistory = new HashMap<>();
 
     @Override
-    public void save(String type, String chatId) {
-        if(!chatHistory.containsKey(type)) {
-            chatHistory.put(type, new ArrayList<>());
+    public void save(String type, String userId, String chatId) {
+        String key = type + ":" + userId;
+        if(!chatHistory.containsKey(key)) {
+            chatHistory.put(key, new ArrayList<>());
         }
         //List<String> chatIds = chatHistory.computeIfAbsent(type, k -> new ArrayList<>());
-        List<String> chatIds = chatHistory.get(type);
+        List<String> chatIds = chatHistory.get(key);
         if(chatIds.contains(chatId)) {
             return;
         }
@@ -42,12 +41,13 @@ public class InMemoryChatHistoryRepository implements ChatHistoryRepository {
     }
 
     @Override
-    public List<String> getChatIds(String type) {
+    public List<String> getChatIds(String type, String userId) {
         /*
         List<String> chatIds = chatHistory.get(type);
         return chatIds == null ? List.of() : chatIds;
          */
 
-        return chatHistory.getOrDefault(type, List.of());
+        String key = type + ":" + userId;
+        return chatHistory.getOrDefault(key, List.of());
     }
 }

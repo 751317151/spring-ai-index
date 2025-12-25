@@ -19,7 +19,6 @@ package com.huah.springai.aiAlibaba.controller;
 import com.huah.springai.aiAlibaba.entity.vo.MessageVo;
 import com.huah.springai.aiAlibaba.repository.ChatHistoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,9 +36,9 @@ public class ChatHistoryController {
 
     private final ChatMemory chatMemory;
 
-    @RequestMapping("/{type}")
-    public List<String> getChatIds(@PathVariable("type") String type) {
-        return chatHistoryRepository.getChatIds(type);
+    @RequestMapping("/ids/{type}/{userId}")
+    public List<String> getChatIds(@PathVariable("type") String type, @PathVariable("userId") String userId) {
+        return chatHistoryRepository.getChatIds(type, userId);
     }
 
     @RequestMapping("/{type}/{chatId}")

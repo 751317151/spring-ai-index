@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.huah.springai.aiAlibaba.repository;
+package com.huah.springai.aiAlibaba.config;
 
-import com.huah.springai.aiAlibaba.entity.PersonRelationship;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.context.annotation.Configuration;
 
-public interface PersonRelationshipRepository extends Neo4jRepository<PersonRelationship, Long> {
+
+/**
+ * @author yuluo
+ * @author <a href="mailto:yuluo08290126@gmail.com">yuluo</a>
+ */
+
+@Configuration
+public class MemoryConfig {
+
 }

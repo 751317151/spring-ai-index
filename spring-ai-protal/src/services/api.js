@@ -2,13 +2,18 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const chatAPI = {
+  getUserId() {
+    return localStorage.getItem('userId');
+  },
   // 发送聊天消息
   async sendMessage(data, chatId) {
+    const userId = this.getUserId();
     try {
       const url = new URL(`${BASE_URL}/ai/chat`, window.location.origin);
       if (chatId) {
         url.searchParams.append("chatId", chatId);
       }
+      url.searchParams.append("userId", userId);
 
       const response = await fetch(url, {
         method: "POST",
@@ -31,9 +36,10 @@ export const chatAPI = {
 
   // 获取聊天历史列表
   async getChatHistory(type = "chat") {
+    const userId = this.getUserId();
     // 添加类型参数
     try {
-      const response = await fetch(`${BASE_URL}/ai/history/${type}`);
+      const response = await fetch(`${BASE_URL}/ai/history/ids/${type}` + `/${userId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -99,11 +105,12 @@ export const chatAPI = {
 
   // 发送客服消息
   async sendServiceMessage(prompt, chatId) {
+    const userId = this.getUserId();
     try {
       const response = await fetch(
           `${BASE_URL}/ai/service?prompt=${encodeURIComponent(
               prompt
-          )}&chatId=${chatId}`,
+          )}&chatId=${chatId}&userId=${userId}`,
           {
             method: "GET",
           }
@@ -126,7 +133,7 @@ export const chatAPI = {
       const response = await fetch(
           `${BASE_URL}/ai/pdf/chat?prompt=${encodeURIComponent(
               prompt
-          )}&chatId=${chatId}`,
+          )}&chatId=${chatId}&userId=${userId}`,
           {
             method: "GET",
             // 确保使用流式响应

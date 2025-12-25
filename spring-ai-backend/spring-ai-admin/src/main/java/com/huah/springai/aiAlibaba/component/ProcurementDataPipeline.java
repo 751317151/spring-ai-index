@@ -16,10 +16,6 @@
 
 package com.huah.springai.aiAlibaba.component;
 
-import com.huah.springai.aiAlibaba.entity.ProcurementProject;
-import com.huah.springai.aiAlibaba.entity.ProcurementOrganization;
-import com.huah.springai.aiAlibaba.repository.ProcurementProjectRepository;
-import com.huah.springai.aiAlibaba.repository.ProcurementOrganizationRepository;
 import com.huah.springai.aiAlibaba.service.ProcurementAIService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +24,6 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,9 +31,7 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 public class ProcurementDataPipeline implements Pipeline {
-    
-    private final ProcurementProjectRepository projectRepository;
-    private final ProcurementOrganizationRepository organizationRepository;
+
     private final ProcurementAIService aiService;
     
     @Override
@@ -60,40 +52,17 @@ public class ProcurementDataPipeline implements Pipeline {
             log.info("开始处理采购数据: {}", title);
             
             // 检查是否已存在
-            Optional<ProcurementProject> existingProject = projectRepository.findBySourceUrl(url);
-            if (existingProject.isPresent()) {
-                log.info("项目已存在，跳过: {}", title);
-                return;
-            }
+//            Optional<ProcurementProject> existingProject = projectRepository.findBySourceUrl(url);
+//            if (existingProject.isPresent()) {
+//                log.info("项目已存在，跳过: {}", title);
+//                return;
+//            }
             
             // 使用AI分析数据
             String aiAnalysis = aiService.analyzeProcurementData(title, content, tableData);
             
             // 解析表格数据提取项目信息
             ProcurementProjectInfo projectInfo = parseProjectInfo(title, content, tableData, aiAnalysis);
-            
-            // 创建或获取采购单位
-            ProcurementOrganization organization = createOrGetOrganization(publishSource, aiAnalysis);
-            
-            // 创建采购项目
-            ProcurementProject project = new ProcurementProject();
-            project.setProjectName(projectInfo.getProjectName());
-            project.setDescription(projectInfo.getDescription());
-            project.setBudget(projectInfo.getBudget());
-            project.setBudgetUnit(projectInfo.getBudgetUnit());
-            project.setProcurementTime(projectInfo.getProcurementTime());
-            project.setPublishDate(publishDate);
-            project.setSourceUrl(url);
-            project.setProcurementPolicy(projectInfo.getProcurementPolicy());
-            project.setRemarks(projectInfo.getRemarks());
-            project.setRawContent(content);
-            project.setAiAnalysis(aiAnalysis);
-            project.setCreatedAt(LocalDateTime.now());
-            project.setUpdatedAt(LocalDateTime.now());
-            project.setOrganization(organization);
-            
-            // 保存到图数据库
-            projectRepository.save(project);
             
             log.info("成功保存采购项目: {}", title);
             
@@ -129,31 +98,7 @@ public class ProcurementDataPipeline implements Pipeline {
         
         return info;
     }
-    
-    /**
-     * 创建或获取采购单位
-     */
-    private ProcurementOrganization createOrGetOrganization(String publishSource, String aiAnalysis) {
-        if (publishSource == null || publishSource.trim().isEmpty()) {
-            publishSource = "未知单位";
-        }
-        
-        Optional<ProcurementOrganization> existing = organizationRepository.findByName(publishSource);
-        if (existing.isPresent()) {
-            return existing.get();
-        }
-        
-        // 创建新的采购单位
-        ProcurementOrganization organization = new ProcurementOrganization();
-        organization.setName(publishSource);
-        organization.setType(determineOrganizationType(publishSource, aiAnalysis));
-        organization.setLevel(determineOrganizationLevel(publishSource, aiAnalysis));
-        organization.setCreatedAt(LocalDateTime.now());
-        organization.setUpdatedAt(LocalDateTime.now());
-        
-        return organizationRepository.save(organization);
-    }
-    
+
     // 辅助方法
     private String extractProjectName(String title) {
         if (title != null && title.contains("政府采购意向公告")) {
